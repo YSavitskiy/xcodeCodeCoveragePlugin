@@ -4,7 +4,7 @@ require 'fastlane/plugin/xcodetestcoverage/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-xcodetestcoverage'
-  spec.version       = Fastlane::xcodetestcoverage::VERSION
+  spec.version       = Fastlane::Xcodetestcoverage::VERSION
   spec.author        = 'Yury Savitsky'
   spec.email         = 'yursavitskiy@gmail.com'
 
