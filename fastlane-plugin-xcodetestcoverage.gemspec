@@ -4,12 +4,12 @@ require 'fastlane/plugin/xcodetestcoverage/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-xcodetestcoverage'
-  spec.version       = Fastlane::Xcodetestcoverage::VERSION
+  spec.version       = Fastlane::xcodetestcoverage::VERSION
   spec.author        = 'Yury Savitsky'
   spec.email         = 'yursavitskiy@gmail.com'
 
   spec.summary       = 'plugin for getting test data from Xcode'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-xcodetestcoverage"
+  spec.homepage      = "https://github.com/YSavitskiy/xcodeCodeCoveragePlugin"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
