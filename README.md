@@ -14,22 +14,33 @@ fastlane add_plugin xcodetestcoverage
 
 Plugin for getting test data from Xcode
 
+It has to be run after tests. 
+Returns hash contains keys: coverage, coveredLines, executableLines:
+
+```bash
+run_tests()
+result = xcodetestcoverage()
+puts(result["coverage"])
+puts(result["coveredLines"])
+puts(result["executableLines"])	
+```
+
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
+Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane tests`.
 
-## Run tests for this plugin
 
-To run both the tests, and code style validation, run
+If you need to throw an exception on test data read error, set the parameter enableDataFailedException = true. If you want to call your code in this case set dataFailedExceptionCallback.
 
-```
-rake
+```bash
+xcodetestcoverage(minimumCoveragePercentage: 45.0,
+                  enableDataFailedException: true,
+                  dataFailedExceptionCallback: ->() { 
+			UI.message("Data reading error")
+		  }
+)
 ```
 
-To automatically fix many of the styling issues, use
-```
-rubocop -a
-```
 
 ## Issues and Feedback
 
