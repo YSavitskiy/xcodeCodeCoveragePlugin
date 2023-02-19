@@ -14,7 +14,7 @@ fastlane add_plugin xcodetestcoverage
 
 Plugin for getting test data from Xcode
 
-It has to be run after tests. 
+It has to be run after tests.
 Returns hash contains keys: coverage, coveredLines, executableLines:
 
 ```bash
@@ -25,10 +25,32 @@ puts(result["coveredLines"])
 puts(result["executableLines"])	
 ```
 
+parameters: 
+
+minimumCoveragePercentage - Minimum acceptable coverage percentage. Call coverageExceptionCallback. Then raise error if overall coverage percentage is under this value and the option enableDefaultCoverageException is enabled", type: Float, optional: true.
+
+enableDefaultCoverageException - Raise error if overall coverage percentage is under this minimumCoveragePercentage and this option is enabled, optional: true, default_value: true
+
+enableDataFailedException - Raise error if can not read the test data and this option is enabled optional: true, default_value: false
+
+dataFailedExceptionCallback - Optional data failed exception callback argument, optional: true,
+type: Proc
+
+coverageExceptionCallback - Optional coverage exception callback argument" optional: true, type: Proc
+
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane tests`.
 
+If you need to throw an exception on coverage percantage, set the parameter minimumCoveragePercentage. If you want to call your code in this case set coverageExceptionCallback. 
+You can disable defaultException if you set enableDefaultCoverageException = false.
+
+```bash
+xcodetestcoverage(minimumCoveragePercentage: 40.0,
+                  coverageExceptionCallback: ->(value) { 
+                  	UI.message("Test coverage failed #{value}") 
+                  })
+```
 
 If you need to throw an exception on test data read error, set the parameter enableDataFailedException = true. If you want to call your code in this case set dataFailedExceptionCallback.
 

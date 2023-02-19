@@ -12,22 +12,23 @@ module Fastlane
         coveredLines = nil
         executableLines = nil
         
-        filePath = "test.xcresult"
-        #filePath = lane_context[SharedValues::SCAN_DERIVED_DATA_PATH] 
-        #result = false
+        filePath = lane_context[SharedValues::SCAN_DERIVED_DATA_PATH]   
 
         if filePath && File.exists?(filePath)
-          jsonResult = sh "xcrun xccov view --only-targets --report #{filePath} --json"          
-          if lineCoverageMatch = jsonResult.match('.*"lineCoverage":(\d+.\d+).*')
-            lineCoverage = lineCoverageMatch.captures[0]
+          jsonResult = sh "xcrun xccov view --only-targets --report #{filePath} --json"
+          if lineCoverageMatch = jsonResult.match('.*lineCoverage":(\d+.\d+).*')
+            lineCoverage = lineCoverageMatch.captures[0].to_f * 100
+            UI.message("Xcodetestcoverage: coverage: #{lineCoverage}")
           end
 
-          if coveredLinesMatch = jsonResult.match('.*"coveredLines":(\d+).*')
-            coveredLines = coveredLinesMatch.captures[0]
+          if coveredLinesMatch = jsonResult.match('.*coveredLines":(\d+).*')
+            coveredLines = coveredLinesMatch.captures[0].to_i
+            UI.message("Xcodetestcoverage: coveredLines: #{coveredLines}")
           end
 
-          if executableLineMatch = jsonResult.match('.*"executableLines":(\d+).*')
-            executableLines = executableLineMatch.captures[0]
+          if executableLineMatch = jsonResult.match('.*executableLines":(\d+).*')
+            executableLines = executableLineMatch.captures[0].to_i
+            UI.message("Xcodetestcoverage: executableLines: #{executableLines}")
           end
         end
         
@@ -36,34 +37,17 @@ module Fastlane
           UI.user_error!("Xcodetestcoverage: Test data reading error!") if enableDataFailedException
           return
         end
+
+        if minimumCoveragePercentage && lineCoverage < minimumCoveragePercentage
+          params[:coverageExceptionCallback].call(minimumCoveragePercentage) if params[:coverageExceptionCallback]
+          UI.user_error!("Xcodetestcoverage: Coverage percentage is less than #{minimumCoveragePercentage} (minimumCoveragePercentage)") if enableDefaultCoverageException
+        end
         
         return {
           "coverage" => lineCoverage,
           "coveredLines" => coveredLines,
-          "executableLines" => executableLines
+          "executableLines" => executableLines,
         }
-        
-        if enableDefaultCoverageException
-          puts("SUPER")
-        else 
-          puts("BAD")
-        end
-        
-        #params[:coverageExceptionCallback].call(minimumCoveragePercentage) if params[:coverageExceptionCallback]
-
-
-#        enableException = params[:enableException]
-
-#	if minimumCoveragePercentage
-#	  UI.message("Percentage #{minimumCoveragePercentage}")
-#	end
-
-#	if enableException
-#	  UI.message("Eception")
-#	end
-
-	      UI.message("Testw4 The xcodetestcoverage plugin is working!")
-	      "test"        
       end
 
       def self.description
