@@ -12,7 +12,7 @@ module Fastlane
         coveredLines = nil
         executableLines = nil
         
-        filePath = lane_context[SharedValues::SCAN_DERIVED_DATA_PATH]   
+        filePath = lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]   
 
         if filePath && File.exists?(filePath)
           jsonResult = sh "xcrun xccov view --only-targets --report #{filePath} --json"
