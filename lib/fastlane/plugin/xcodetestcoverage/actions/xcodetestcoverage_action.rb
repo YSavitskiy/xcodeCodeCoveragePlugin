@@ -8,12 +8,15 @@ module Fastlane
         enableDataFailedException = params[:enableDataFailedException]
 	      minimumCoveragePercentage = params[:minimumCoveragePercentage]
         enableDefaultCoverageException = params[:enableDefaultCoverageException]
+        filePath = params[:xcresultPath]
         lineCoverage = nil
         coveredLines = nil
         executableLines = nil
         
-        filePath = lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]   
-
+        if !filePath 
+          filePath = lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]
+        end
+        
         if filePath && File.exists?(filePath)
           jsonResult = sh "xcrun xccov view --only-targets --report '#{filePath}' --json"
           if lineCoverageMatch = jsonResult.match('.*lineCoverage":(\d+.\d+).*')
@@ -101,7 +104,14 @@ module Fastlane
 	        key: :coverageExceptionCallback,
 	        description: "Optional coverage exception callback argument",
 	        optional: true,
-	        type: Proc)
+	        type: Proc),
+
+        FastlaneCore::ConfigItem.new(
+          key: :xcresultPath,
+          env_name: "XCODETESTCOVERAGE_XCRESULTPATH",
+          description: "Alternative path to xcresult",
+          type: String,
+          optional: true)
         ]
       end
 

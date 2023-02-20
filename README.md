@@ -38,6 +38,8 @@ type: Proc
 
 coverageExceptionCallback - Optional coverage exception callback argument" optional: true, type: Proc
 
+xcresultPath - alternative path to xcresult, optional: true, type: String
+
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane tests`.
