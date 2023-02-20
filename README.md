@@ -64,7 +64,13 @@ xcodetestcoverage(minimumCoveragePercentage: 45.0,
 		  }
 )
 ```
-
+You can use alternative path to xcresult. In this case, running a test via fastlane (with the command scan or run_tests) before xcodetestcoverage is optional.
+```bash
+ reportPath = "test.xcresult"
+ xcodetestcoverage(minimumCoveragePercentage: 30.0,
+ 		   enableDataFailedException: true,
+                   xcresultPath: reportPath)
+```
 
 ## Issues and Feedback
 
