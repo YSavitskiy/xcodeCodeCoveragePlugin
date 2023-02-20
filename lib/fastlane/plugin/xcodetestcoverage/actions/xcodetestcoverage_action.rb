@@ -15,7 +15,7 @@ module Fastlane
         filePath = lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]   
 
         if filePath && File.exists?(filePath)
-          jsonResult = sh "xcrun xccov view --only-targets --report #{filePath} --json"
+          jsonResult = sh "xcrun xccov view --only-targets --report '#{filePath}' --json"
           if lineCoverageMatch = jsonResult.match('.*lineCoverage":(\d+.\d+).*')
             lineCoverage = lineCoverageMatch.captures[0].to_f * 100
             UI.message("Xcodetestcoverage: coverage: #{lineCoverage}")
