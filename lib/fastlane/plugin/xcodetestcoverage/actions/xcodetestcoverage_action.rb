@@ -8,33 +8,56 @@ module Fastlane
         enableDataFailedException = params[:enableDataFailedException]
 	      minimumCoveragePercentage = params[:minimumCoveragePercentage]
         enableDefaultCoverageException = params[:enableDefaultCoverageException]
+        targetName = params[:testTargetName]
         filePath = params[:xcresultPath]
-        lineCoverage = nil
-        coveredLines = nil
-        executableLines = nil
+        foundElement = nil     
         
         if !filePath 
           filePath = lane_context[SharedValues::SCAN_GENERATED_XCRESULT_PATH]
         end
-        
+
         if filePath && File.exists?(filePath)
           jsonResult = sh "xcrun xccov view --only-targets --report '#{filePath}' --json"
-          if lineCoverageMatch = jsonResult.match('.*lineCoverage":(\d+.\d+).*')
-            lineCoverage = lineCoverageMatch.captures[0].to_f * 100
-            UI.message("Xcodetestcoverage: coverage: #{lineCoverage}")
+
+          #regex, reason: json parse does not work correctly
+          if resultMatch = jsonResult.match('(\[.*lineCoverage.*\])')
+            jsonArray = resultMatch.captures[0]
           end
 
-          if coveredLinesMatch = jsonResult.match('.*coveredLines":(\d+).*')
-            coveredLines = coveredLinesMatch.captures[0].to_i
-            UI.message("Xcodetestcoverage: coveredLines: #{coveredLines}")
+          elements = Array.new()    
+          element = ""
+          for pos in 0...jsonArray.length
+            if jsonArray[pos].chr == "}"
+              elements.push Helper::XcodetestcoverageHelper.buildElement(element: element)
+              element = ""
+            else         
+              element = element + jsonArray[pos].chr
+            end
           end
 
-          if executableLineMatch = jsonResult.match('.*executableLines":(\d+).*')
-            executableLines = executableLineMatch.captures[0].to_i
-            UI.message("Xcodetestcoverage: executableLines: #{executableLines}")
+          if elements.length > 0 
+            for index in 0...elements.length              
+              if targetName && elements[index]["name"] && elements[index]["name"] == targetName
+                foundElement = elements[index]              
+              break
+              end
+              
+              if !foundElement || (elements[index]["coverage"] && elements[index]["coverage"] > foundElement["coverage"])
+                foundElement = elements[index]                
+              end
+            end
+          else 
+            foundElement = Helper::XcodetestcoverageHelper.buildElement(element: jsonResult)
           end
         end
-        
+
+        lineCoverage = foundElement["coverage"]
+   
+        UI.message("Xcodetestcoverage: name: #{foundElement["name"]}")
+        UI.message("Xcodetestcoverage: coverage: #{lineCoverage}")
+        UI.message("Xcodetestcoverage: coveredLines: #{foundElement["coveredLines"]}")
+        UI.message("Xcodetestcoverage: executableLines: #{foundElement["executableLines"]}")
+
         if !lineCoverage
           params[:dataFailedExceptionCallback].call() if params[:dataFailedExceptionCallback]
           UI.user_error!("Xcodetestcoverage: Test data reading error!") if enableDataFailedException
@@ -46,11 +69,7 @@ module Fastlane
           UI.user_error!("Xcodetestcoverage: Coverage percentage is less than #{minimumCoveragePercentage} (minimumCoveragePercentage)") if enableDefaultCoverageException
         end
         
-        return {
-          "coverage" => lineCoverage,
-          "coveredLines" => coveredLines,
-          "executableLines" => executableLines,
-        }
+        return foundElement
       end
 
       def self.description
@@ -105,6 +124,13 @@ module Fastlane
 	        description: "Optional coverage exception callback argument",
 	        optional: true,
 	        type: Proc),
+        
+        FastlaneCore::ConfigItem.new(
+          key: :testTargetName,
+          env_name: "XCODETESTCOVERAGE_TEST_TARGET_NAME",
+          description: "Alternative path to xcresult",
+          type: String,
+          optional: true),
 
         FastlaneCore::ConfigItem.new(
           key: :xcresultPath,

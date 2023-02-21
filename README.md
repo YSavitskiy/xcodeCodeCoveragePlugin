@@ -15,13 +15,14 @@ fastlane add_plugin xcodetestcoverage
 Plugin for getting test data from Xcode
 
 It has to be run after tests.
-Returns hash contains keys: coverage, coveredLines, executableLines:
+Returns hash contains keys: name, coverage, coveredLines, executableLines:
 
 ```bash
 run_tests()
 result = xcodetestcoverage()
-puts(result["coverage"])
-puts(result["coveredLines"])
+puts(result["name"]) #current test target name
+puts(result["coverage"]) #current coverage percentage
+puts(result["coveredLines"]) 
 puts(result["executableLines"])	
 ```
 
@@ -37,6 +38,8 @@ dataFailedExceptionCallback - Optional data failed exception callback argument, 
 type: Proc
 
 coverageExceptionCallback - Optional coverage exception callback argument" optional: true, type: Proc
+
+testTargetName - searches test target to display coverage percentages, if it is empty the results contains the target with the highest percentage value, optional: true, type: String
 
 xcresultPath - alternative path to xcresult, optional: true, type: String
 
