@@ -1,3 +1,6 @@
 lane :tests do
-  xcodetestcoverage
+  scan
+  xcodetestcoverage(minimumCoveragePercentage: 30.0,
+  		    enableDataFailedException: true,
+		    testTargetName: ENV['SCHEME'])
 end
